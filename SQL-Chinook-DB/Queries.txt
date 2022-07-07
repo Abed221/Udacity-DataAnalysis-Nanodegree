@@ -1,0 +1,65 @@
+/* Query1 - Query used for the first insight  */
+SELECT purchases,
+       Country,
+       Name,
+       GenreId
+FROM
+  (SELECT count(*) AS purchases,
+          invoice.BillingCountry AS country,
+          Genre.Name,
+          track.GenreId
+   FROM Invoice
+   JOIN InvoiceLine ON Invoice.InvoiceId = InvoiceLine.InvoiceId
+   JOIN Track ON Track.TrackId = InvoiceLine.TrackId
+   JOIN Genre ON genre.GenreId = track.GenreId
+   GROUP BY 2,
+            3,
+            4
+   ORDER BY 2,
+            1 DESC)
+GROUP BY Country
+HAVING purchases = max(purchases)
+
+
+/* Query2 - Query used for the second insight  */
+SELECT Artist.Name,
+       COUNT(*) AS Albums
+
+FROM Artist
+JOIN Album 
+ON Album.ArtistId = Artist.ArtistId
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10
+
+
+/* Query3 - Query used for the third insight  */
+SELECT Artist.ArtistId,
+       Artist.Name,
+       count(Track.TrackId)
+FROM Artist
+JOIN Album 
+ON Album.ArtistId = Artist.ArtistId
+JOIN Track 
+ON Track.AlbumId = Album.AlbumId
+JOIN Genre 
+ON Genre.GenreId = Track.GenreId
+WHERE Genre.Name = 'Rock'
+GROUP BY 1,
+         2
+ORDER BY 3 DESC
+LIMIT 10
+
+/* Query4 - Query used for the fourth insight  */
+SELECT Artist.Name AS Artist,
+       sum(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS Total_Spent
+FROM Artist
+JOIN Album 
+ON Album.ArtistId = Artist.ArtistId
+JOIN Track 
+ON Album.AlbumId = Track.AlbumId
+JOIN InvoiceLine 
+ON InvoiceLine.TrackId = Track.TrackId
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10
